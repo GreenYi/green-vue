@@ -14,8 +14,8 @@
         <el-form-item label="身份证号" prop="cardNo">
           <el-input v-model="form.cardNo"></el-input>
         </el-form-item>
-        <el-form-item>
-          <el-button type="primary" icon="el-icon-search" @click="onSubmit('formData')">查询</el-button>
+        <el-form-item style="float: left">
+          <el-button size="small" type="primary" icon="el-icon-search" @click="onSubmit('formData')">查询</el-button>
         </el-form-item>
         <el-table :data="tableData" style="width: 100%">
           <el-table-column prop="desc" label="描述" width="180"></el-table-column>
@@ -55,41 +55,28 @@ export default {
     }
   },
   methods: {
-    goIdCard () {
-      this.$router.push({ path: '/id-card/id-card' })
-    },
-    goDept () {
-      this.$router.push({ path: '/dept/list' })
-    },
     onSubmit (formData) {
       this.$refs[formData].validate(valid => {
         if (valid) {
           const loadingObj = this.$loading({
-            // lock: true,
             text: '查询中...'
-            // spinner: 'el-icon-loading',
-            // background: 'rgba(0, 0, 0, 0.7)',
-            // target: document.querySelector('.submit')
           })
           this.axios({
             // 使用封装好的 axios 进行网络请求
             url: '/id-card/id-card',
             method: 'post',
             data: this.form
-          })
-            .then(res => {
+          }).then(res => {
+            if (res.data.status === 200) {
               // 这里使用了ES6的语法
-              this.tableData = [res.data]
-              this.$message({
-                type: 'success',
-                message: '查询成功'
-              })
-              // 后端返回结果后，结束loadingObj，即loadingObj.close();
-              loadingObj.close()
-            })
-            .catch(error => {
-              alert(error.data.message) // 请求失败返回的数据
-            })
+              this.tableData = [res.data.data]
+              this.$message.success(res.data.message)
+            } else {
+              this.$message.error(res.data.message)
+            }
+            // 后端返回结果后，结束loadingObj，即loadingObj.close();
+            loadingObj.close()
+          })
         }
       })
     }

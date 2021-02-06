@@ -2,28 +2,29 @@
   <div>
       <el-form :inline="true">
         <el-form-item style="float: left">
-          <el-button type="primary" size="small" icon="el-icon-plus" @click="hanldeAdd()">添加</el-button>
-          <addDept :dialogAdd="dialogAdd" @update="getDeptInfo"></addDept>
-          <editDept :dialogEdit="dialogEdit" :form="form" @update="getDeptInfo"></editDept>
+          <el-button type="primary" size="small" icon="el-icon-plus" @click="insertDept()">添加</el-button>
+          <addDept :dialogAdd="dialogAdd" @update="getAllDept(false)"></addDept>
+          <editDept :dialogEdit="dialogEdit" :form="form" @update="getAllDept(false)"></editDept>
         </el-form-item>
       </el-form>
       <el-form ref="form" :model="form" label-width="80px">
         <el-table :data="tableData" style="width: 100%">
-          <el-table-column prop="id" label="id" width="180"></el-table-column>
+          <el-table-column prop="createTime" label="创建时间" width="180"></el-table-column>
+          <el-table-column prop="updateTime" label="修改时间" width="180"></el-table-column>
           <el-table-column prop="deptName" label="名字" width="180"></el-table-column>
           <el-table-column prop="deptLoc" label="地址" width="180"></el-table-column>
           <el-table-column label="操作" fixed="right">
             <template slot-scope="scope">
               <el-button
-                size="mini"
+                size="small"
                 icon="el-icon-edit-outline"
-                @click="handleEdit(scope.$index, scope.row)"
-              >编辑</el-button>
+                @click="updateDept(scope.$index, scope.row)"
+              >修改</el-button>
               <el-button
-                size="mini"
+                size="small"
                 type="danger"
                 icon="el-icon-delete"
-                @click="handleDelete(scope.$index, scope.row)"
+                @click="deleteDept(scope.$index, scope.row)"
               >删除</el-button>
             </template>
           </el-table-column>
@@ -52,90 +53,69 @@ export default {
   data () {
     return {
       form: {
+        createTime: '',
+        updateTime: '',
         deptName: '',
         deptLoc: ''
       },
-      tableData: [], // 用于存放数据
+      // 用于存放数据
+      tableData: [],
       dialogAdd: {
         show: false
       },
       dialogEdit: {
         show: false
       }
-      // formEdit: {
-      //   deptName: '',
-      //   deptLoc: ''
-      // }
     }
   },
   created: function () {
-    this.getDeptInfo()
+    this.getAllDept(true)
   },
-  // dialogAdd: {
-  //   show: false
-  // },
-  // dialogEdit: {
-  //   show: false
-  // },
   methods: {
-    goIdCard () {
-      this.$router.push({ path: '/id-card/id-card' })
-    },
-    goDept () {
-      this.$router.push({ path: '/dept/list' })
-    },
-    onSubmit () {
-      this.axios({
-        // 使用封装好的 axios 进行网络请求
-        url: '/id-card/id-card',
-        method: 'post',
-        data: this.form
-      })
-        .then(res => {
-          // 这里使用了ES6的语法
-          console.log(res.data)
-          if (res.data.status === 200) {
-            alert(res.data.message)
-            this.$emit('userSignIn', '') // 记录登录状态
-            this.$router.replace({ path: '/login' }) // 成功后跳转
-          }
-        })
-        .catch(error => {
-          console.log('error')
-          alert(error.data.message) // 请求失败返回的数据
-        })
-    },
-    getDeptInfo () {
+    // 获取所有部门，isShowMessage是否显示成功信息
+    getAllDept (isShowMessage) {
       this.axios({
         // 使用封装好的 axios 进行网络请求
         url: '/dept/list',
-        method: 'get',
-        data: {}
+        method: 'get'
       }).then(res => {
-        this.tableData = res.data
+        if (res.data.status === 200) {
+          this.tableData = res.data.data
+          if (isShowMessage) {
+            this.$message.success(res.data.message)
+          }
+        } else {
+          this.$message.error(res.data.message)
+        }
       })
     },
-    hanldeAdd () {
+    insertDept () {
       // 添加
       this.dialogAdd.show = true // 弹出对话框
     },
-    handleDelete (index, row) {
-      // 删除用户信息
-      this.axios({
+    deleteDept (index, row) {
+      this.$confirm('确定删除？', '提示').then(() => {
+        // 删除用户信息
+        this.axios({
         // 使用封装好的 axios 进行网络请求
-        url: '/dept/' + row.id,
-        method: 'delete'
-      }).then(res => {
-        this.$message({
-          type: 'success',
-          message: '删除信息成功'
+          url: '/dept/' + row.id,
+          method: 'delete'
+        }).then(res => {
+          if (res.data.status === 200) {
+            this.$message.success(res.data.message)
+          } else {
+            this.$message.error(res.data.message)
+          }
+          // 删除数据，更新视图
+          this.getAllDept(false)
         })
-        this.getDeptInfo() // 删除数据，更新视图
+      }).catch(() => {
+        this.$message.info('已取消删除')
       })
     },
-    handleEdit (index, row) {
-      // 编辑
-      this.dialogEdit.show = true // 显示弹
+    updateDept (index, row) {
+      // 编辑，显示弹
+      this.dialogEdit.show = true
       this.form = {
         deptName: row.deptName,
         deptLoc: row.deptLoc,
