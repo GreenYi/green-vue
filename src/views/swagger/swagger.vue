@@ -11,7 +11,8 @@ export default {
   data () {
     return {
       // url: 'http://127.0.0.1:8080/api/swagger-ui.html'
-      url: 'http://greenyi.top:8080/api/swagger-ui.html'
+      // url: 'http://greenyi.top/api/swagger-ui.html'
+      url: 'http://zhizun.shenzhuo.vip:10050/api/swagger-ui.html'
     }
   },
   mounted () {

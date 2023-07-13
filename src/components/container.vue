@@ -31,6 +31,13 @@
             <router-view />
           </template>
         </el-main>
+        <el-footer class="app-footer" style="height: 40px;">
+            <div class="icp">
+              <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=50010702505012" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;"><img src="../images/icp.png" style="float:left;"/>渝公网安备 50010702505012号</a>
+              {{ '\u00a0\u00a0\u00a0\u00a0' }}
+              <a target="_blank" href="https://beian.miit.gov.cn/">桂ICP备2023005811号-1</a>
+            </div>
+        </el-footer>
       </el-container>
     </el-container>
   </div>
@@ -103,5 +110,21 @@ export default {
 }
 .app-body {
   height: 100%;
+}
+.app-footer{
+  background-color: #ffffff;
+}
+.icp {
+    bottom: 0px;
+    padding: 10px 0;
+    width: 100%;
+    text-align: center;
+    color: gray;
+    width:500px;
+    margin:0 auto;
+}
+.icp a {
+    color: #939393;
+    text-decoration: none;
 }
 </style>
